@@ -60,7 +60,7 @@ There are a number of custom engineered features used in the final model, and he
 
 ### Ablation Test Results
 
-Using the same hyper-parameters, training data, and test data, I conducted a series of **ablation tests** as follows to determine the importance of each feature. 
+Using the same hyper-parameters, 10% of the training data, and 4.5K test data, I conducted a series of **ablation tests** as follows to determine the importance of each feature. 
 
 | Feature | Accuracy | Abalation |
 | ------|:------:| :------:|
