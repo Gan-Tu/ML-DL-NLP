@@ -1,5 +1,7 @@
 # Dependency Parser
 
+![dependency parser picture](https://nlp.stanford.edu/software/nndep-example.png)
+
 ## Overview
 In this project, I will implement a transition-based dependency parser, which analyzes the grammatical structure of a sentence, establishing relationships between "head" words and words which modify those heads. 
 
