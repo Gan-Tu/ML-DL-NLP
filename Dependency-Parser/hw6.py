@@ -194,7 +194,6 @@ def isvalid(stack, wbuffer, action):
 
 	return False
 
-
 # Question 3
 def action_to_tree(tree, predictions, wbuffer, stack, arcs):
 	"""
@@ -202,7 +201,7 @@ def action_to_tree(tree, predictions, wbuffer, stack, arcs):
 	tree:
 	a dictionary of dependency relations (head, dep_label)
 		{
-			child1: (head1, dep_lebel1),
+			child1: (head1, dep_label1),
 		 	child2: (head2, dep_label2), ...
 		}
 
@@ -226,7 +225,24 @@ def action_to_tree(tree, predictions, wbuffer, stack, arcs):
 	# 2. some actions predicted are not going to be valid
 	# (e.g., shifting if nothing is on the buffer)
 	# so sort probs and keep going until we find one that is valid.
-
+	predictions = -predictions
+	for idx in predictions[0].argsort():
+		action = reverse_labels[idx]
+		if isvalid(stack, wbuffer, action):
+			if action == "SHIFT":
+				stack.append(wbuffer.pop())
+			elif action.startswith("RIGHTARC"):
+				top = stack.pop()
+				second = stack[-1]
+				tag = action[action.index("_")+1:]
+				tree[top] = (second, tag)
+			else:
+				top = stack.pop()
+				second = stack.pop()
+				stack.append(top)
+				tag = action[action.index("_")+1:]
+				tree[second] = (top, tag)
+			break
 
 
 # ============================================================
