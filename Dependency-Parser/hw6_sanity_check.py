@@ -52,7 +52,7 @@ def check_shift_first():
     result = [None, None, None, None, None]
 
     try:
-        perform_shift(wbuffer, stack, arcs,config, tran)
+        perform_shift(wbuffer, stack, arcs, config, tran)
     except Exception as e:
         print("Calling method {} failed".format(perform_shift.__name__))
         print(e)

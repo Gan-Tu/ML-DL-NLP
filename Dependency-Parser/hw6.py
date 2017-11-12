@@ -66,12 +66,14 @@ def perform_shift(wbuffer, stack, arcs,
 	# Implement your code below
 	# your code should:
 	# 1. append the latest configuration to configurations
-	
+	configurations.append((wbuffer.copy(), stack.copy(), arcs.copy()))
 	# 2. append the latest action to gold_transitions
+	gold_transitions.append("SHIFT")
 	# 3. update wbuffer, stack and arcs accordingly
 	# hint: note that the order of operations matters
 	# as we want to capture the configurations and transition rules
 	# before making changes to the stack, wbuffer and arcs
+	stack.append(wbuffer.pop())
 
 
 # Question 2.b.
@@ -84,12 +86,21 @@ def perform_arc(direction, dep_label,
 		- dep_label: label for the dependency relations
 	Perform LEFTARC_ and RIGHTARC_ operations
 	"""
-
 	# Implement your code below
 	# your code should:
 	# 1. append the latest configuration to configurations
+	configurations.append((wbuffer.copy(), stack.copy(), arcs.copy()))
 	# 2. append the latest action to gold_transitions
+	gold_transitions.append("{0}ARC_{1}".format(direction, dep_label))
 	# 3. update wbuffer, stack and arcs accordingly
+	if direction == "LEFT":
+		top = stack.pop()
+		second = stack.pop()
+		stack.append(top)
+		arcs.append((dep_label, top, second))
+	else:
+		top = stack.pop()
+		arcs.append((dep_label, stack[-1], top))
 	# hint: note that the order of operations matters
 	# as we want to capture the configurations and transition rules
 	# before making changes to the stack, wbuffer and arcs
@@ -124,7 +135,50 @@ def tree_to_actions(wbuffer, stack, arcs, deps):
 	# correspond to the states of the wbuffer, stack, arcs
 	# (before the action was take) and action to take at step i
 	# 2. you should call perform_shift and perform_arc in your code
+	def is_left_arc():
+		return len(stack) >= 2 and \
+				stack[-1] in deps and \
+				(stack[-1], stack[-2]) in deps[stack[-1]]
 
+	def perform_left_arc():
+		top, second = stack[-1], stack[-2]
+		tag = deps[top][(top, second)]
+		perform_arc("LEFT", tag, wbuffer, stack, arcs, configurations, gold_transitions)
+
+	def is_right_arc():
+		baseline = len(stack) >= 2 and \
+				stack[-2] in deps and \
+				(stack[-2], stack[-1]) in deps[stack[-2]]
+		if baseline:
+			if stack[-1] in deps:
+				for dep in deps[stack[-1]]:
+					if dep[1] in wbuffer:
+						return False
+		return baseline 
+
+	def perform_right_arc():
+		top, second = stack[-1], stack[-2]
+		tag = deps[second][(second, top)]
+		perform_arc("RIGHT", tag, wbuffer, stack, arcs, configurations, gold_transitions)
+
+	def shift():
+		perform_shift(wbuffer, stack, arcs, configurations, gold_transitions)
+
+	while len(wbuffer) != 0:
+		if is_left_arc():
+			perform_left_arc()
+		elif is_right_arc():
+			perform_right_arc()
+		else:
+			shift()
+
+	while len(stack) > 1:
+		if is_left_arc():
+			perform_left_arc()
+		else:
+			perform_right_arc()
+
+	return configurations, gold_transitions
 
 def isvalid(stack, wbuffer, action):
 	"""
