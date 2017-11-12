@@ -335,6 +335,22 @@ def featurize_configuration(configuration, tokens, postags):
 	# word-pair features
 	if len(stack) > 1:
 		feats["%s_%s_%s_%s" % ("stack1_word_tag_stack2_tag", tokens[stack[-1]], postags[stack[-1]], postags[stack[-2]])] = 1
+		# My new features
+		sw1, sw2 = tokens[stack[-1]], tokens[stack[-2]]
+		st1, st2 = postags[stack[-1]], postags[stack[-2]]
+
+		feats["{0}_{0}_{0}_{0}".format("stack1_word_stack2_word_tag", sw1, sw2, st2)] = 1
+		feats["{0}_{0}".format("stack1_word_stack2_word", sw1, sw2)] = 1
+		feats["{0}_{0}".format("stack1_tag_stack2_tag", st1, st2)] = 1
+		feats["{0}_{0}_{0}".format("stack1_tag_stack2_word_tag", st1, sw2, st2)] = 1
+		feats["{0}_{0}_{0}".format("stack1_word_stack2_word_tag", sw1, sw2, st2)] = 1
+		feats["{0}_{0}_{0}".format("stack1_word_tag_stack2_tag", sw1, st1, st2)] = 1
+	# My new features
+	if len(wbuffer) > 0 and len(stack) > 0:
+		bw1 = tokens[wbuffer[-1]]
+		st1 = postags[stack[-1]]
+		feats["{0}_{0}".format("stack1_tag_buffer1_word", st1, bw1)] = 1
+
 
 	return feats
 
